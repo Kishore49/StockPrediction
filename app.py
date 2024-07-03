@@ -116,5 +116,5 @@ def explain_metric(metric):
     }
     return jsonify({'explanation': explanations.get(metric, "No explanation available.")})
 
-if __name__ == '__main__':
-    app.run(debug=True)
+#if __name__ == '__main__':
+    #app.run(debug=True)
