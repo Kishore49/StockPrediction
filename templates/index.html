@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stock Analyzer</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(45deg, #ff9a9e 0%, #fad0c4 99%, #fad0c4 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .container {
+            width: 100%;
+            max-width: 800px;
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 20px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            text-align: center;
+        }
+        .logo {
+            max-width: 150px;
+            margin: 20px auto;
+        }
+        h1 {
+            color: #333;
+        }
+        form {
+            margin-bottom: 20px;
+        }
+        select, button {
+            padding: 10px;
+            font-size: 16px;
+            border: none;
+            border-radius: 10px;
+            margin: 5px;
+        }
+        select {
+            background-color: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.3s;
+        }
+        button:hover {
+            background-color: #45a049;
+            transform: translateY(-2px);
+        }
+        #result {
+            background-color: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            border-radius: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .metric {
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+        .metric:hover {
+            color: #4CAF50;
+        }
+        #explanation {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <img src="https://cdn.dribbble.com/userupload/7170059/file/original-2c54675fa5bcb3f84e2f2aeb296ba96c.jpg?resize=400x0" alt="Company Logo" class="logo">
+        <h1>Stock Analyzer</h1>
+        <form method="POST">
+            <select name="stock">
+                {% for stock in stocks %}
+                <option value="{{ stock }}" {% if selected == stock %}selected{% endif %}>{{ stock }}</option>
+                {% endfor %}
+            </select>
+            <button type="submit">Analyze</button>
+        </form>
+        
+        {% if data %}
+        <div id="result">
+            <h2>{{ data.Symbol }} - {{ data.Name }}</h2>
+            <p><strong>Sector:</strong> {{ data.Sector }}</p>
+            <p><strong>Industry:</strong> {{ data.Industry }}</p>
+            <p><strong>Current Price:</strong> ${{ data.Price }}</p>
+            <p><strong>52 Week High:</strong> ${{ data['52WeekHigh'] }}</p>
+            <p><strong>52 Week Low:</strong> ${{ data['52WeekLow'] }}</p>
+            <p><strong class="metric" onclick="explainMetric('PERatio')">P/E Ratio:</strong> {{ data.PERatio }}</p>
+            <p><strong class="metric" onclick="explainMetric('ForwardPE')">Forward P/E:</strong> {{ data.ForwardPE }}</p>
+            <p><strong class="metric" onclick="explainMetric('DividendYield')">Dividend Yield:</strong> {{ data.DividendYield }}%</p>
+            <p><strong class="metric" onclick="explainMetric('MarketCap')">Market Cap:</strong> ${{ data.MarketCap }}</p>
+            <p><strong class="metric" onclick="explainMetric('EPS')">EPS:</strong> {{ data.EPS }}</p>
+            <p><strong class="metric" onclick="explainMetric('Beta')">Beta:</strong> {{ data.Beta }}</p>
+            <p><strong class="metric" onclick="explainMetric('BookValue')">Book Value:</strong> {{ data.BookValue }}</p>
+            <p><strong class="metric" onclick="explainMetric('PriceToBook')">Price to Book:</strong> {{ data.PriceToBook }}</p>
+            <h3>Analysis:</h3>
+            <ul>
+            {% for point in analysis %}
+                <li>{{ point }}</li>
+            {% endfor %}
+            </ul>
+            <div id="explanation"></div>
+        </div>
+        {% endif %}
+    </div>
+
+    <script>
+        function explainMetric(metric) {
+            fetch(`/explain/${metric}`)
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('explanation').innerHTML = `<strong>${metric}:</strong> ${data.explanation}`;
+                });
+        }
+    </script>
+</body>
+</html>
